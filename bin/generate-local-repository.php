@@ -25,7 +25,7 @@ foreach ($packages as &$versions) {
 }
 unset($versions);
 
-if (!is_dir($outputDir) && !mkdir($outputDir, 0777, true) && !is_dir($outputDir)) {
+if (!is_dir($outputDir) && !mkdir($outputDir, 0755, true) && !is_dir($outputDir)) {
     fwrite(STDERR, sprintf("Failed to create output directory '%s'.\n", $outputDir));
     exit(1);
 }
