@@ -28,16 +28,21 @@ final class ConflictPolicyTest extends TestCase
             $data = json_decode($contents, true);
             $this->assertIsArray($data, $basename);
             $this->assertSame('shopware/conflicts', $data['name'] ?? null, $basename);
-            $this->assertSame('metapackage', $data['type'] ?? 'metapackage', $basename);
+            $this->assertArrayHasKey('type', $data, $basename);
+            $this->assertSame('metapackage', $data['type'], $basename);
             $this->assertArrayHasKey('require', $data, $basename);
             $this->assertIsArray($data['require'], $basename);
             $this->assertArrayHasKey('shopware/core', $data['require'], $basename);
+
+            $this->assertFilenameVersionNormalizes($parser, $fileVersion, $basename);
 
             if (array_key_exists('version', $data)) {
                 $this->assertSame($fileVersion, $data['version'], $basename);
             }
 
-            $this->parseConstraint($parser, $data['require']['shopware/core'], $basename . ' require shopware/core');
+            foreach ($data['require'] as $package => $constraint) {
+                $this->parseConstraint($parser, (string) $constraint, $basename . ' require ' . $package);
+            }
 
             if (isset($data['conflict']) && is_array($data['conflict'])) {
                 foreach ($data['conflict'] as $package => $constraint) {
@@ -139,7 +144,6 @@ final class ConflictPolicyTest extends TestCase
         $this->assertArrayHasKey('conflict', $data, $file);
         $this->assertArrayHasKey('symfony/symfony', $data['conflict'], $file);
         $this->assertSame('*', $data['conflict']['symfony/symfony'], $file);
-        $this->assertTrue(Semver::satisfies('6.4.0', $data['conflict']['symfony/symfony']), $file);
     }
 
     /**
@@ -214,6 +218,15 @@ final class ConflictPolicyTest extends TestCase
             $parser->parseConstraints($constraint);
         } catch (\Exception $e) {
             $this->fail('Invalid constraint for ' . $label . ': ' . $e->getMessage());
+        }
+    }
+
+    private function assertFilenameVersionNormalizes(VersionParser $parser, string $fileVersion, string $basename): void
+    {
+        try {
+            $parser->normalize($fileVersion);
+        } catch (\Exception $e) {
+            $this->fail('Filename version does not normalize for ' . $basename . ': ' . $e->getMessage());
         }
     }
 }

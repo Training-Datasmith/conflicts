@@ -47,7 +47,6 @@ final class GenerateLocalRepositoryTest extends TestCase
             return version_compare($b, $a);
         });
         $this->assertSame($sorted, $versions);
-        $this->assertTrue(version_compare('0.1.20', '0.1.9', '>'));
 
         $versionCount = count($versions);
         $this->assertStringContainsString(
@@ -81,6 +80,7 @@ final class GenerateLocalRepositoryTest extends TestCase
 
         $result = runGeneratorScript($temp['repoRoot'], array(), $temp['scratchCwd']);
         $this->assertSame(0, $result['exitCode'], $result['stderr']);
+        $this->assertSame('', $result['stderr']);
         $this->assertFileExists($temp['repoRoot'] . '/build/local-repository/packages.json');
         $this->assertFileDoesNotExist($temp['repoRoot'] . '/packages.json');
     }
@@ -93,6 +93,7 @@ final class GenerateLocalRepositoryTest extends TestCase
 
         $result = runGeneratorScript($temp['repoRoot'], array('out/repo'), $temp['scratchCwd']);
         $this->assertSame(0, $result['exitCode'], $result['stderr']);
+        $this->assertSame('', $result['stderr']);
         $this->assertFileExists($temp['repoRoot'] . '/out/repo/packages.json');
     }
 
@@ -104,6 +105,7 @@ final class GenerateLocalRepositoryTest extends TestCase
 
         $result = runGeneratorScript($temp['repoRoot'], array('--output=out/repo'), $temp['scratchCwd']);
         $this->assertSame(0, $result['exitCode'], $result['stderr']);
+        $this->assertSame('', $result['stderr']);
         $this->assertFileExists($temp['repoRoot'] . '/out/repo/packages.json');
     }
 
@@ -115,6 +117,7 @@ final class GenerateLocalRepositoryTest extends TestCase
 
         $result = runGeneratorScript($temp['repoRoot'], array('--output', 'out/repo'), $temp['scratchCwd']);
         $this->assertSame(0, $result['exitCode'], $result['stderr']);
+        $this->assertSame('', $result['stderr']);
         $this->assertFileExists($temp['repoRoot'] . '/out/repo/packages.json');
     }
 
@@ -162,6 +165,7 @@ final class GenerateLocalRepositoryTest extends TestCase
 
         $result = runGeneratorScript(REPO_ROOT, array('--output=' . $outputDir));
         $this->assertSame(0, $result['exitCode'], $result['stderr']);
+        $this->assertSame('', $result['stderr']);
         $this->assertFileExists($outputDir . '/packages.json');
         $this->assertStringContainsString($outputDir, $result['stdout']);
     }
@@ -195,6 +199,7 @@ final class GenerateLocalRepositoryTest extends TestCase
 
         $result = runGeneratorScript($temp['repoRoot'], array(), $temp['scratchCwd']);
         $this->assertSame(0, $result['exitCode'], $result['stderr']);
+        $this->assertSame('', $result['stderr']);
 
         $decoded = json_decode(
             (string) file_get_contents($temp['repoRoot'] . '/build/local-repository/packages.json'),
@@ -222,6 +227,7 @@ final class GenerateLocalRepositoryTest extends TestCase
 
         $result = runGeneratorScript($temp['repoRoot'], array(), $temp['scratchCwd']);
         $this->assertSame(0, $result['exitCode'], $result['stderr']);
+        $this->assertSame('', $result['stderr']);
 
         $decoded = json_decode(
             (string) file_get_contents($temp['repoRoot'] . '/build/local-repository/packages.json'),
@@ -247,6 +253,7 @@ final class GenerateLocalRepositoryTest extends TestCase
 
         $result = runGeneratorScript($temp['repoRoot'], array(), $temp['scratchCwd']);
         $this->assertSame(0, $result['exitCode'], $result['stderr']);
+        $this->assertSame('', $result['stderr']);
 
         $decoded = json_decode(
             (string) file_get_contents($temp['repoRoot'] . '/build/local-repository/packages.json'),
@@ -273,6 +280,7 @@ final class GenerateLocalRepositoryTest extends TestCase
 
         $result = runGeneratorScript($temp['repoRoot'], array(), $temp['scratchCwd']);
         $this->assertSame(0, $result['exitCode'], $result['stderr']);
+        $this->assertSame('', $result['stderr']);
 
         $decoded = json_decode(
             (string) file_get_contents($temp['repoRoot'] . '/build/local-repository/packages.json'),
@@ -425,6 +433,7 @@ final class GenerateLocalRepositoryTest extends TestCase
 
         $result = runGeneratorScript($temp['repoRoot'], array(), $temp['scratchCwd']);
         $this->assertSame(0, $result['exitCode'], $result['stderr']);
+        $this->assertSame('', $result['stderr']);
 
         $decoded = json_decode(
             (string) file_get_contents($temp['repoRoot'] . '/build/local-repository/packages.json'),
@@ -459,6 +468,7 @@ final class GenerateLocalRepositoryTest extends TestCase
 
         $result = runGeneratorScript($temp['repoRoot'], array(), $temp['scratchCwd']);
         $this->assertSame(0, $result['exitCode'], $result['stderr']);
+        $this->assertSame('', $result['stderr']);
         $this->assertStringContainsString('Generated 2 package version(s) for 2 package(s)', $result['stdout']);
 
         $decoded = json_decode(
