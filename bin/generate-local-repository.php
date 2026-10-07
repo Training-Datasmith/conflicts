@@ -6,8 +6,27 @@ declare(strict_types=1);
 $repoRoot = dirname(__DIR__);
 $defaultOutputDir = $repoRoot . '/build/local-repository';
 
-$options = getopt('', ['output::']);
-$outputArgument = $options['output'] ?? ($argv[1] ?? null);
+$options = getopt('', ['output:']);
+if ($options === false) {
+    printUsage();
+    exit(1);
+}
+
+$outputArgument = null;
+
+if (array_key_exists('output', $options)) {
+    $outputArgument = $options['output'];
+    if ($outputArgument === false || $outputArgument === '') {
+        printUsage();
+        exit(1);
+    }
+} elseif (isset($argv[1])) {
+    if ($argv[1] === '' || $argv[1][0] === '-') {
+        printUsage();
+        exit(1);
+    }
+    $outputArgument = $argv[1];
+}
 
 $outputDir = $outputArgument !== null
     ? normalizePath($outputArgument, $repoRoot)
@@ -36,7 +55,10 @@ $json = json_encode(
     JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR
 );
 
-file_put_contents($outputFile, $json . PHP_EOL);
+if (file_put_contents($outputFile, $json . PHP_EOL) === false) {
+    fwrite(STDERR, sprintf("Failed to write '%s'.\n", $outputFile));
+    exit(1);
+}
 
 $versionCount = array_reduce(
     $packages,
@@ -53,6 +75,11 @@ fwrite(
         $outputFile
     )
 );
+
+function printUsage(): void
+{
+    fwrite(STDERR, "Usage: generate-local-repository.php [--output=<dir>|--output <dir>|<dir>]\n");
+}
 
 /**
  * @return array<string, array<string, array<string, mixed>>>
@@ -85,7 +112,18 @@ function buildPackageMatrix(string $repoRoot): array
             continue;
         }
 
-        $packageData = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
+        try {
+            $packageData = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
+        } catch (JsonException $e) {
+            fwrite(STDERR, sprintf("Invalid JSON in %s: %s\n", $basename, $e->getMessage()));
+            exit(1);
+        }
+
+        if (!is_array($packageData)) {
+            fwrite(STDERR, sprintf("Missing 'name' in %s, skipping.\n", $basename));
+            continue;
+        }
+
         $name = $packageData['name'] ?? null;
 
         if (!is_string($name) || $name === '') {
